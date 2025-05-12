@@ -1,0 +1,147 @@
+
+! Title: Cyana's QoL filter (Duolingo)
+! Expires: 1 day
+! Description: Duolingo filter that removes ad banners as much as possible and improves tab visibility
+! Homepage: https://github.com/CEa-TIde/ubo-scripts
+!
+! Issues: https://github.com/CEa-TIde/ubo-scripts/issues
+! PRs: https://github.com/CEa-TIde/ubo-scripts/pulls
+! Feel free to fork and submit pr's if you have more QoL filters.
+
+! Trans rights are human rights // Happy Pride Month forever
+
+
+! https://duolingo.com
+!---------------------------------------
+!! remove ad blocker banner in aside
+duolingo.com##div:has(> div > div > div > a[href$="115005407166-How-can-I-disable-my-ad-blocker-to-support-Duolingo-"])
+! alternative filter:
+!duolingo.com##div + div:has(a[href$="115005407166-How-can-I-disable-my-ad-blocker-to-support-Duolingo-"]):has-text(Using an ad blocker?)
+
+!! remove after-lesson side panel ad blocker banner
+! duolingo.com##div > div:has(div[data-test="-slide"]) + div:has(> div > div > img[src*="/images/super/"]):has(> div > div > div > div > a[href$="115005407166-How-can-I-disable-my-ad-blocker-to-support-Duolingo-"])
+! panel slide data-test names: session-complete-slide, streak-slide, daily-quest-progress-slide, daily-quest-reward-slide
+! leaderboard slide has no data-test; select on image instead: /images/leagues
+! streak society slide has no data-test; select on image instead: /images/streakSociety
+! monthly badge progress slide has no data-test; select on progressbar + img instead; div: role="progressbar" and img: /assets/
+duolingo.com##div > div:has(div[data-test$="-slide"], img[src*="/images/leagues"], img[src*="/images/streakSociety"], div[role="progressbar"] + img[src*="/assets/"]) + div:has(> div > div > img[src*="/images/super/"]):has-text(Using an ad blocker?)
+! center other block after removing
+duolingo.com##div > div:has(div[data-test$="-slide"], img[src*="/images/leagues"], img[src*="/images/streakSociety"], div[role="progressbar"] + img[src*="/assets/"]):has(+ div > div > div > img[src*="/images/super/"]):style(margin: 0 auto !important;)
+
+!! remove duolingo super banners
+duolingo.com##div:has(> img[data-test="plus-offer-logo"])
+duolingo.com##div:has(> div > img[data-test="plus-offer-logo"]):has(> div > img[src*="/images/practiceHub"][draggable])
+||cloudfront.net/images/super/*$domain=duolingo.com|cloudfront.net
+duolingo.com##button[data-test="practice-hub-ad-continue-button"]
+
+!! remove upgrade to super duolingo ad
+||simg-ssl.duolingo.com/videos/promo/*$media
+! slow filter because of standalone :has; replaced by line below that
+!duolingo.com##[data-test="purchase-step-active"] :has(~ div > button)
+duolingo.com##div[data-test="purchase-step-active"]:has(> div > div > div > div > button[data-test="plus-no-thanks"]):has-text(Super Duolingo)
+duolingo.com##[data-test="purchase-step-active"] button[data-test="plus-continue"], [data-test="purchase-step-active"] button:not([data-test])
+
+!! remove "super learners are 4.2x more likely..." banner
+duolingo.com##div[data-test="purchase-step-active"]:has(div[data-test="longscroll-title"]):has-text(Super learners are)
+duolingo.com##div[data-test="purchase-step-active"] > div > button[data-test="plus-continue"]:has-text(Try for)
+
+! I think this might just block the animations
+!! ||cloudfront.net/lottie/*$domain=duolingo.com
+
+!! remove super-exclusive tab
+duolingo.com##div:has(> a[data-test="practice-hub-nav"])
+
+!! block legendary promo banner; how to automatically skip this?
+! TODO: check if subdomain wildcard is necessary?
+||*.cloudfront.net/images/legendary/*$media,domain=duolingo.com
+duolingo.com##div:has(> [data-test="legendary-start-button"])
+
+! TODO: double check what this was for
+!||https://www.duolingo.com/2017-06-30/shop-items
+
+!! remove notification popup
+! It should not remove the end session popup. The following is hack for that: `:not(:has(button[data-test="notification-drawer-no-thanks-button"]))`
+! Possible alternive is to check with Regex on "End session" or negate :has-text(); needs more looking into
+duolingo.com###overlays > div[data-focus-lock-disabled]:has(button[data-test="notification-button"]):not(:has(button[data-test="notification-drawer-no-thanks-button"]))
+
+!! remove unlimited hearts offer
+! Note: does not remove the unlimited hearts trial you may receive
+duolingo.com##button:has(> div > div > img[src*="/images/hearts/"]):has-text(Unlimited Hearts)
+duolingo.com##li:has(> img[src*="/images/hearts/"] + button + div + p):has-text(Unlimited Hearts)
+!! remove unlimited hearts offer from overlay when out of hearts
+duolingo.com###overlays > div[data-focus-lock-disabled="false"] div:has(> button img[src*="/images/hearts/"]):has-text(Get Super)
+duolingo.com###overlays > div[data-focus-lock-disabled="false"] div > button:has(> span):has-text(Try 2 weeks for free)
+
+!! remove ad banner gradient
+duolingo.com##div:has(> div > div[data-test="purchase-step-active"]):style(background: none !important;)
+
+!-----------------------------
+!!! TABBING
+
+
+!! generic tabbing; disabled in favour of better support
+!duolingo.com##div[role="button"]:focus-visible:style(opacity: 0.7 !important; background: red !important)
+!duolingo.com##button:focus-visible:style(opacity: 0.7 !important; background: gold !important)
+!duolingo.com##a:focus-visible:style(opacity: 0.7 !important; background: green !important)
+
+!! tabbing for round lesson buttons
+! NOTE: These filters cannot rely on `div[role="button"][tabindex="0"]` as those attributes are removed later
+! set button to gold and simulate a hover button press
+! not-yet-available lessons are darker
+! TODO: double-check the following comment:
+! 1st line only selects finished lessons; 2nd line selects courses not yet available; 3rd line selects courses partially started; 4th line same as 3rd but selects START hover label
+duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:has(svg):focus-visible:style(--path-level-color: gold !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] div:not(:has(> svg clipPath[id^="clip-session/ProgressRing"])) > div > button[data-test^="skill-path-level-"]:not(:has(svg)):focus-visible:style(--path-level-color: #606000 !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] div:has(> svg clipPath[id^="clip-session/ProgressRing"])       > div > button[data-test^="skill-path-level-"]:focus-visible:style(--path-level-color: gold !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] div:has(> svg clipPath[id^="clip-session/ProgressRing"])       > div > button[data-test^="skill-path-level-"]:focus-visible + div[aria-hidden="true"] div:style(color: gold !important; border-color: gold !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:focus-visible > span:style(color: goldenrod !important;)
+! simulate hover button press
+duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:focus-visible:style(transform: translateY(1.5px) !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:focus-visible::before
+! TODO: disabled because? Remove if no longer needed
+!duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:has(svg):focus-visible::after:style(box-shadow: 0 6.5px 0 rgb(var(--color-black),.2),0 6.5px 0 var(--path-level-color) !important;)
+duolingo.com##section[data-test^="skill-path-unit-"] button[data-test^="skill-path-level-"]:focus-visible::after:style(box-shadow: 0 6.5px 0 rgb(var(--color-black),.2),0 6.5px 0 var(--path-level-color) !important;)
+
+!! tabbing for "Open character gate" buttons
+! set hovering "Start" label to gold
+duolingo.com##section[data-test^="skill-path-unit-"] button[aria-label="Open character gate"]:focus-visible > div[aria-hidden="true"] div:style(color: gold !important; border-color: gold !important;)
+
+!! tabbing for Legendary Trophy buttons
+duolingo.com##section[data-test^="skill-path-unit-"] div[role="button"][aria-label$="to Legendary"]:focus-visible:has(img[src*="/images/path/trophies"]):style(background: goldenrod !important; border: 2px solid gold !important; border-radius: 10px !important;)
+
+!! tabbing for exercise word/character blocks
+! only alter outline for blocks not yet chosen (aria-disabled="false")
+duolingo.com##button[data-test$="-challenge-tap-token"][aria-disabled="false"]:focus-visible::before:style(border-color: gold !important; color: gold !important;)
+! alter outline for blocks already chosen (aria-disabled="true")
+duolingo.com##button[data-test$="-challenge-tap-token"][aria-disabled="true"]:focus-visible::before:style(border-color: gray !important; color: gold !important;)
+
+!! tabbing for no thanks button on "4.2 more likely to..." ad screen
+duolingo.com##div[data-test="purchase-step-active"] > div > button[data-test="plus-no-thanks"]:focus-visible:style(border: 1px solid gold !important; border-radius: 10px !important;)
+
+!! tabbing for "next" button in lesson footer
+!duolingo.com##[id="session/PlayerFooter"] button[data-test="player-next"]:focus-visible:style(transform: translateY(var(--__internal__lip-width)) translateZ(0) !important;)
+duolingo.com##[id="session/PlayerFooter"] button[data-test="player-next"]:focus-visible::before:style(background-color: gold !important; color: goldenrod !important;)
+
+!! tabbing for other button in lesson footer
+!duolingo.com##[id="session/PlayerFooter"] button:not([data-test="player-next"]):focus-visible:style(color: gold !important; transform: translateY(2px) translateZ(0px) !important; box-shadow: none;)
+duolingo.com##[id="session/PlayerFooter"] button:not([data-test="player-next"]):focus-visible:style(color: gold !important;)
+duolingo.com##[id="session/PlayerFooter"] button:not([data-test="player-next"]):focus-visible::before:style(border-color: gold !important; color: goldenrod !important;)
+
+!! tabbing for legendary ad buttons
+duolingo.com##div:has(> div > [data-test="legendary-start-button"]) button:first-child:focus-visible:style(color: gold !important;)
+duolingo.com##div:has(> div > [data-test="legendary-start-button"]) button:first-child:focus-visible:style(border-color: gold !important; color: goldenrod !important;)
+! TODO: disabled, because? Remove if no longer needed
+!duolingo.com##div:has(> div > [data-test="legendary-start-button"]) button + button:focus-visible:style(background-color: gold !important; color: goldenrod !important;)
+
+!! tabbing for "use keyboard" button
+duolingo.com##button[data-test="player-toggle-keyboard"]:focus-visible:style(border: 1px solid gold !important; border-radius: 10px !important;)
+
+
+!! remove double tabbing in skill path nodes
+! if this breaks ARIA compatibility, you can comment it out
+! it only removes the role & tabindex attributes (making it generic for ARIA), so that when tabbing it only focuses on the inner button that is also there (instead of both)
+duolingo.com##section[data-test^="skill-path-unit-"] > div > div > div[role="button"][tabindex="0"]:has(> div > button[data-test^="skill-path-level-"]):remove-attr(/role|tabindex/)
+duolingo.com##section[data-test^="skill-path-unit-"] > div > div > div[role="button"][tabindex="0"]:has(> button[aria-label$="haracter gate"]):remove-attr(/role|tabindex/)
+
+
+!--------------------------------------

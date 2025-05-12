@@ -1,0 +1,20 @@
+! Title: Cyana's QoL filter
+! Expires: 1 day
+! Description: a QoL filter blocking ads, annoyances, making tabbing more visible (where possible), etc. Collective of /all/ filters in this repository. If you only need a subset of the filter lists, consider loading each individual filter list separately.
+! Homepage: https://github.com/CEa-TIde/ubo-scripts
+!
+! Issues: https://github.com/CEa-TIde/ubo-scripts/issues
+! PRs: https://github.com/CEa-TIde/ubo-scripts/pulls
+! Feel free to fork and submit pr's if you have more QoL filters.
+
+! Trans rights are human rights // Happy Pride Month forever
+
+! For more information about uBO, see: https://github.com/gorhill/uBlock/wiki
+! For more information about static filters specifically, see: https://github.com/gorhill/uBlock/wiki/Static-filter-syntax
+
+!----------------------------------------------------------
+
+! NOTE: if you are loading this with Adguard or other uBO-compatible adblockers, this `!#include' statement will likely be ignored as a comment.
+! If that is the case, you have to load each individual script separately.
+!#include /filters/duolingo.txt
+!#include /filters/duckduckgo.txt

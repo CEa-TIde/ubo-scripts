@@ -1,0 +1,27 @@
+! Title: Cyana's QoL filter (DuckDuckGo)
+! Expires: 1 day
+! Description: Removes the AI DuckAssist from DuckDuckGo's search page.
+! Homepage: https://github.com/CEa-TIde/ubo-scripts
+!
+! Issues: https://github.com/CEa-TIde/ubo-scripts/issues
+! PRs: https://github.com/CEa-TIde/ubo-scripts/pulls
+! Feel free to fork and submit pr's if you have more QoL filters.
+
+! Trans rights are human rights // Happy Pride Month forever
+
+
+! https://duckduckgo.com
+!-----------------------------------------------
+!! block any network requests related to duck assist
+||duckduckgo.com/dist/wpm.duckassist-ia*
+
+!! remove the ai chat button from the duckbar
+duckduckgo.com###react-duckbar li:has(a[href$="&ia=chat"])
+
+!! remove the ai assist button from the duckbar
+duckduckgo.com###react-duckbar li:has(a[href$="&assist=false"], a[href$="&assist=true"])
+
+!! remove the ai chat form from the "no more results" section
+duckduckgo.com##div:has(> form[action$="&ia=chat"] > input[name="aiChatPrompt"])
+
+!-----------------------------------------------
